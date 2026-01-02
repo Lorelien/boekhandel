@@ -7,6 +7,7 @@ class AuthService
     public function __construct(Database $db)
     {
         $this->db = $db;
+
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -45,18 +46,20 @@ class AuthService
             return false;
         }
 
-        if (!password_verify($password, $user->passwordHash)) {
+        if (!password_verify($password, $user->getPasswordHash())) {
             return false;
         }
 
-        $_SESSION['user_id'] = $user->id;
+        $_SESSION['user_id'] = $user->getId();
         return true;
     }
 
     public function logout(): void
     {
         $_SESSION = [];
-        session_destroy();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
     }
 
     public function getCurrentUser(): ?User
