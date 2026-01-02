@@ -1,7 +1,9 @@
 <?php
-require_once __DIR__ . '/auth_admin.php';        // zet $db en $currentUser
+require_once __DIR__ . '/auth.admin.php';
 require_once __DIR__ . '/classes/Book.php';
 require_once __DIR__ . '/classes/Category.php';
+require_once __DIR__ . '/classes/Author.php';
+require_once __DIR__ . '/classes/Publisher.php';
 
 $pdo = $db->getConnection();
 
