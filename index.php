@@ -1,4 +1,17 @@
-<!DOCTYPE html>
+<?php
+require_once __DIR__ . '/src/Database.php';
+require_once __DIR__ . '/src/Book.php';
+require_once __DIR__ . '/src/Category.php';
+
+$db = new Database();
+
+$categoryId = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
+$search = $_GET['q'] ?? null;
+
+$categories = Category::findAll($db);
+$books = Book::findAll($db, $categoryId, $search);
+
+?><!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
