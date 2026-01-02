@@ -1,12 +1,54 @@
 <?php
-
 class Category
 {
-    public int $id;
-    public string $name;
-    public string $slug;
-    public bool $isMainCategory;  // ← Nieuw: onderscheid hoofd/sub
+    private int $id;
+    private string $name;
+    private string $slug;
+    private bool $isMainCategory;
 
+    // Getters
+    public function getId(): int 
+    { 
+        return $this->id; 
+    }
+
+    public function getName(): string 
+    { 
+        return $this->name; 
+    }
+
+    public function getSlug(): string 
+    { 
+        return $this->slug; 
+    }
+
+    public function isMainCategory(): bool 
+    { 
+        return $this->isMainCategory; 
+    }
+
+    // Setters
+    public function setId(int $id): void 
+    { 
+        $this->id = $id; 
+    }
+
+    public function setName(string $name): void 
+    { 
+        $this->name = $name; 
+    }
+
+    public function setSlug(string $slug): void 
+    { 
+        $this->slug = $slug; 
+    }
+
+    public function setIsMainCategory(bool $isMain): void 
+    { 
+        $this->isMainCategory = $isMain; 
+    }
+
+    // Static methods blijven hetzelfde
     public static function findAll(Database $db): array
     {
         $pdo = $db->getConnection();
@@ -15,24 +57,23 @@ class Category
 
         while ($row = $stmt->fetch()) {
             $cat = new Category();
-            $cat->id = (int)$row['id'];
-            $cat->name = $row['name'];
-            $cat->slug = $row['slug'];
-            $cat->isMainCategory = in_array($cat->id, [1,2,3,4]);  // ← Jouw 4 hoofdcats
+            $cat->setId((int)$row['id']);
+            $cat->setName($row['name']);
+            $cat->setSlug($row['slug']);
+            $cat->setIsMainCategory(in_array($cat->getId(), [1,2,3,4])); // Jouw 4 hoofdcats
             $categories[] = $cat;
         }
-
         return $categories;
     }
 
     public static function findSubcategories(Database $db, int $mainCatId): array
     {
-        // Vaste mapping: welke subcats horen bij welke hoofdcategorie
+        // Vaste mapping subcategorieën per hoofdcategorie
         $subcatMapping = [
-            1 => [5,6,7],  // Fictie: Thrillers, Fantasy, Romans
-            2 => [8,9,10], // Non-fictie: Biografie, Geschiedenis, Zelfhulp
-            3 => [11,12],  // Jeugd: Prentenboeken, Jeugdromans
-            4 => [13,14,15] // Studie: IT, Webdesign, Economie
+            1 => [5,6,7],   // Fictie: Thrillers(5), Fantasy(6), Romans(7)
+            2 => [8,9,10],  // Non-fictie: Biografie(8), Geschiedenis(9), Zelfhulp(10)
+            3 => [11,12],   // Jeugd: Prentenboeken(11), Jeugdromans(12)
+            4 => [13,14,15] // Studie: IT(13), Webdesign(14), Economie(15)
         ];
 
         $subIds = $subcatMapping[$mainCatId] ?? [];
@@ -46,9 +87,9 @@ class Category
         $subs = [];
         while ($row = $stmt->fetch()) {
             $sub = new Category();
-            $sub->id = (int)$row['id'];
-            $sub->name = $row['name'];
-            $sub->slug = $row['slug'];
+            $sub->setId((int)$row['id']);
+            $sub->setName($row['name']);
+            $sub->setSlug($row['slug']);
             $subs[] = $sub;
         }
         return $subs;

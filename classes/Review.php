@@ -2,12 +2,28 @@
 
 class Review
 {
-    public int $id;
-    public int $bookId;
-    public int $userId;
-    public string $comment;
-    public int $rating; // 1-5
-    public string $reviewDate;
+    private int $id;
+    private int $bookId;
+    private int $userId;
+    private string $comment;
+    private int $rating;        // 1–5
+    private string $reviewDate;
+
+    // Getters
+    public function getId(): int { return $this->id; }
+    public function getBookId(): int { return $this->bookId; }
+    public function getUserId(): int { return $this->userId; }
+    public function getComment(): string { return $this->comment; }
+    public function getRating(): int { return $this->rating; }
+    public function getReviewDate(): string { return $this->reviewDate; }
+
+    // Setters
+    public function setId(int $id): void { $this->id = $id; }
+    public function setBookId(int $bookId): void { $this->bookId = $bookId; }
+    public function setUserId(int $userId): void { $this->userId = $userId; }
+    public function setComment(string $comment): void { $this->comment = $comment; }
+    public function setRating(int $rating): void { $this->rating = $rating; }
+    public function setReviewDate(string $reviewDate): void { $this->reviewDate = $reviewDate; }
 
     public static function create(Database $db, int $bookId, int $userId, int $rating, string $comment): bool
     {

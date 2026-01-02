@@ -15,6 +15,10 @@ $search = $_GET['q'] ?? null;
 
 $categories = Category::findAll($db);
 $books = Book::findAll($db, $categoryId, $search);
+
+$cat->getId();
+$cat->getName();
+$cat->isMainCategory();
 ?>
 <!DOCTYPE html>
 <html lang="nl">

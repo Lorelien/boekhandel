@@ -2,9 +2,41 @@
 
 class Publisher
 {
-    public int $id;
-    public string $name;
-    public ?string $website;
+    private int $id;
+    private string $name;
+    private ?string $website;
+
+    // Getters
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getWebsite(): ?string
+    {
+        return $this->website;
+    }
+
+    // Setters
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function setWebsite(?string $website): void
+    {
+        $this->website = $website;
+    }
 
     public static function findById(Database $db, int $id): ?Publisher
     {
@@ -18,9 +50,9 @@ class Publisher
         }
 
         $publisher = new Publisher();
-        $publisher->id = (int)$row['id'];
-        $publisher->name = $row['name'];
-        $publisher->website = $row['website'] ?? null;
+        $publisher->setId((int)$row['id']);
+        $publisher->setName($row['name']);
+        $publisher->setWebsite($row['website'] ?? null);
 
         return $publisher;
     }

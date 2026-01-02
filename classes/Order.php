@@ -2,10 +2,22 @@
 
 class Order
 {
-    public int $id;
-    public int $userId;
-    public string $orderDate;
-    public float $totalPrice;
+    private int $id;
+    private int $userId;
+    private string $orderDate;
+    private float $totalPrice;
+
+    // Getters
+    public function getId(): int { return $this->id; }
+    public function getUserId(): int { return $this->userId; }
+    public function getOrderDate(): string { return $this->orderDate; }
+    public function getTotalPrice(): float { return $this->totalPrice; }
+
+    // Setters
+    public function setId(int $id): void { $this->id = $id; }
+    public function setUserId(int $userId): void { $this->userId = $userId; }
+    public function setOrderDate(string $orderDate): void { $this->orderDate = $orderDate; }
+    public function setTotalPrice(float $totalPrice): void { $this->totalPrice = $totalPrice; }
 
     public static function createFromCart(Database $db, User $user, Cart $cart): ?Order
     {
@@ -20,7 +32,7 @@ class Order
                  VALUES (:user_id, NOW(), :total_price)'
             );
             $stmt->execute([
-                ':user_id'     => $user->id,
+                ':user_id'     => $user->getId(),
                 ':total_price' => $total,
             ]);
 
@@ -44,10 +56,10 @@ class Order
             $pdo->commit();
 
             $order = new Order();
-            $order->id = $orderId;
-            $order->userId = $user->id;
-            $order->orderDate = date('Y-m-d H:i:s');
-            $order->totalPrice = $total;
+            $order->setId($orderId);
+            $order->setUserId($user->getId());
+            $order->setOrderDate(date('Y-m-d H:i:s'));
+            $order->setTotalPrice($total);
 
             $cart->clear();
 
