@@ -100,47 +100,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Overzicht boeken -->
         <section class="admin-card">
-            <h2>📚 Bestaande boeken</h2>
+    <h2>📚 Bestaande boeken</h2>
 
-            <?php if ($error): ?><div class="error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
-            <?php if ($success): ?><div class="success"><?= htmlspecialchars($success) ?></div><?php endif; ?>
+    <?php if ($error): ?><div class="error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
+    <?php if ($success): ?><div class="success"><?= htmlspecialchars($success) ?></div><?php endif; ?>
 
-            <table>
-                <thead>
+    <!-- Scroll-wrapper rond de tabel -->
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titel</th>
+                    <th>Categorie</th>
+                    <th>Prijs</th>
+                    <th>ISBN</th>
+                    <th>Acties</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($books as $row): ?>
                     <tr>
-                        <th>ID</th>
-                        <th>Titel</th>
-                        <th>Categorie</th>
-                        <th>Prijs</th>
-                        <th>ISBN</th>
-                        <th>Acties</th>
+                        <td><?= (int)$row['id'] ?></td>
+                        <td><?= htmlspecialchars($row['title']) ?></td>
+                        <td><span class="badge"><?= htmlspecialchars($row['category_name']) ?></span></td>
+                        <td>€ <?= number_format($row['price'], 2, ',', '.') ?></td>
+                        <td><?= htmlspecialchars($row['isbn']) ?></td>
+                        <td>
+                            <form method="post" style="display:inline;"
+                                  onsubmit="return confirm('Boek verwijderen?');">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="book_id" value="<?= (int)$row['id'] ?>">
+                                <button type="submit" class="btn-danger">Verwijder</button>
+                            </form>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($books as $row): ?>
-                        <tr>
-                            <td><?= (int)$row['id'] ?></td>
-                            <td><?= htmlspecialchars($row['title']) ?></td>
-                            <td><span class="badge"><?= htmlspecialchars($row['category_name']) ?></span></td>
-                            <td>€ <?= number_format($row['price'], 2, ',', '.') ?></td>
-                            <td><?= htmlspecialchars($row['isbn']) ?></td>
-                            <td>
-                                <!-- Verwijderen -->
-                                <form method="post" style="display:inline;" 
-                                      onsubmit="return confirm('Boek verwijderen?');">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="book_id" value="<?= (int)$row['id'] ?>">
-                                    <button type="submit" class="btn-danger">Verwijder</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    <?php if (empty($books)): ?>
-                        <tr><td colspan="6">Nog geen boeken aanwezig.</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </section>
+                <?php endforeach; ?>
+                <?php if (empty($books)): ?>
+                    <tr><td colspan="6">Nog geen boeken aanwezig.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
 
         <!-- Nieuw boek toevoegen -->
         <section class="admin-card">

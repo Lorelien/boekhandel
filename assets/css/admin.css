@@ -23,16 +23,34 @@ table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
+    /* table-layout: fixed;  ← weghalen of uitcommenten */
 }
 
 th, td {
     padding: 0.5rem;
     border-bottom: 1px solid #e5e7eb;
     text-align: left;
+    /* deze twee mogen blijven om te lange waarden te beperken als nodig */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* white-space: nowrap;  ← weghalen zodat tekst kan aflopen */
 }
 
-th {
-    background: #f9fafb;
+/* Alleen ID smal maken, rest automatisch laten verdelen */
+th:nth-child(1),
+td:nth-child(1) {
+    width: 40px;
+}
+
+/* Optioneel: categorie iets smaller, prijs wat smaller */
+th:nth-child(3),
+td:nth-child(3) {
+    width: 25%;
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+    width: 12%;
 }
 
 /* Badge */
