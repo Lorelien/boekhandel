@@ -101,7 +101,7 @@ class User
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === '1';
     }
 
     // -------- Static factory methods (DB) --------
