@@ -7,6 +7,9 @@ require_once __DIR__ . '/classes/Cart.php';
 $db = new Database();
 $cart = new Cart($db);
 
+$auth = new AuthService($db);
+$currentUser = $auth->getCurrentUser();
+
 $categoryId = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
 $search = $_GET['q'] ?? null;
 
@@ -58,11 +61,19 @@ $books = Book::findAll($db, $categoryId, $search);
         <div class="container">
             <h1 class="logo">📚 Boekhandel</h1>
             <nav class="main-nav">
-                <a href="index.php">Home</a>
-                <a href="winkelmandje.php">🛒 (<?= count($cart->getItems()) ?>)</a>
-                <a href="login.php">Login</a>
-                <a href="admin.php">Admin</a>
-            </nav>
+    <a href="index.php">Home</a>
+    <a href="winkelmandje.php">🛒 (<?= count($cart->getItems()) ?>)</a>
+    <?php if ($currentUser): ?>
+        <span>👋 <?= htmlspecialchars($currentUser->firstname) ?></span>
+        <?php if ($currentUser->isAdmin()): ?>
+            <a href="admin.php" style="color: #10b981;">👑 Admin</a>
+        <?php endif; ?>
+        <a href="login.php?action=logout">Uitloggen</a>
+    <?php else: ?>
+        <a href="login.php">Login</a>
+    <?php endif; ?>
+</nav>
+
         </div>
     </header>
 
