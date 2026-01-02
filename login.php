@@ -43,7 +43,7 @@ $currentUser = $auth->getCurrentUser();
         <?php if ($currentUser): ?>
             <!-- Ingelogd -->
             <div class="user-info">
-                <p><strong>Welkom, <?= htmlspecialchars($currentUser->firstname . ' ' . $currentUser->lastname) ?>!</strong></p>
+                <p><strong>Welkom, <?= htmlspecialchars($currentUser->getFirstname() . ' ' . $currentUser->getLastname()) ?>!</strong></p>
                 <?php if ($currentUser->isAdmin()): ?>
                     <p style="color: #059669; font-weight: bold;">👑 Admin modus actief</p>
                 <?php endif; ?>

@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Bestelling plaatsen
             $order = Order::createFromCart($db, $currentUser, $cart);
             if ($order) {
-                $success = 'Bestelling geplaatst! Order #' . $order->id;
+                $success = 'Bestelling geplaatst! Order #' . $order->getId();
             } else {
                 $error = 'Fout bij plaatsen bestelling';
             }
