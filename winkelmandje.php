@@ -4,96 +4,147 @@ require_once __DIR__ . '/classes/Cart.php';
 require_once __DIR__ . '/classes/AuthService.php';
 require_once __DIR__ . '/classes/Order.php';
 
-$db = new Database();
+$db   = new Database();
 $auth = new AuthService($db);
 $cart = new Cart($db);
 
 $currentUser = $auth->getCurrentUser();
 
-// Voeg toe aan mandje of verwijder
+// voorkom undefined warnings
+$error   = '';
+$success = '';
+
+// POST‑acties: toevoegen/verwijderen/afrekenen
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action'], $_POST['book_id'])) {
-        if ($_POST['action'] === 'add') {
-            $cart->addItem((int)$_POST['book_id'], (int)($_POST['quantity'] ?? 1));
-        } elseif ($_POST['action'] === 'remove') {
-            $cart->removeItem((int)$_POST['book_id']);
-        } elseif ($_POST['action'] === 'checkout' && $currentUser) {
-            // Bestelling plaatsen
+    $action = $_POST['action'] ?? null;
+
+    if ($action === 'add' && isset($_POST['book_id'])) {
+        $bookId   = (int)$_POST['book_id'];
+        $quantity = max(1, (int)($_POST['quantity'] ?? 1));
+
+        $cart->addItem($bookId, $quantity);
+        $success = 'Boek toegevoegd aan je winkelmandje.';
+    }
+
+    if ($action === 'remove' && isset($_POST['book_id'])) {
+        $bookId = (int)$_POST['book_id'];
+        $cart->removeItem($bookId);
+        $success = 'Boek verwijderd uit je winkelmandje.';
+    }
+
+    if ($action === 'checkout') {
+        if (!$currentUser) {
+            $error = 'Je moet ingelogd zijn om te bestellen.';
+        } else {
             $order = Order::createFromCart($db, $currentUser, $cart);
             if ($order) {
                 $success = 'Bestelling geplaatst! Order #' . $order->getId();
             } else {
-                $error = 'Fout bij plaatsen bestelling';
+                $error = 'Er is iets misgegaan bij het plaatsen van je bestelling.';
             }
         }
     }
+
+    // Na POST altijd redirect om refresh‑problemen te vermijden (PRG‑pattern)
     header('Location: winkelmandje.php');
     exit;
 }
 
+// Data voor weergave
 $items = $cart->getDetailedItems();
 $total = $cart->getTotal();
 ?>
 <!DOCTYPE html>
 <html lang="nl">
 <head>
+    <meta charset="UTF-8">
     <title>Winkelmandje - Boekhandel</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/cart.css">
 </head>
 <body>
-    <!-- Header zoals index.php -->
-    <header class="site-header">...</header>
-
-    <main class="site-main">
-        <div class="container">
-            <h1>🛒 Winkelmandje (<?= count($items) ?> items)</h1>
-
-            <?php if ($error): ?>
-                <div class="error"><?= htmlspecialchars($error) ?></div>
-            <?php endif; ?>
-            <?php if (isset($success)): ?>
-                <div class="success"><?= htmlspecialchars($success) ?></div>
-            <?php endif; ?>
-
-            <?php if (empty($items)): ?>
-                <div style="text-align: center; padding: 3rem;">
-                    <h2>Je winkelmandje is leeg</h2>
-                    <a href="index.php" class="btn">🛍️ Naar de winkel</a>
-                </div>
+<header class="site-header">
+    <div class="container">
+        <h1 class="logo">📚 Boekhandel</h1>
+        <nav class="main-nav">
+            <a href="index.php">Home</a>
+            <a href="winkelmandje.php">🛒 (<?= count($cart->getItems()) ?>)</a>
+            <?php if ($currentUser): ?>
+                <span>👋 <?= htmlspecialchars($currentUser->getFirstname()) ?></span>
+                <?php if ($currentUser->isAdmin()): ?>
+                    <a href="admin.php" style="color:#10b981;">Admin</a>
+                <?php endif; ?>
+                <a href="login.php">Account</a>
             <?php else: ?>
-                <div class="cart-items">
-                    <?php foreach ($items as $item): ?>
-                        <div class="cart-item">
-                            <img src="assets/images/<?= htmlspecialchars($item['cover_image'] ?? 'default.jpg') ?>" 
-                                 alt="<?= htmlspecialchars($item['title']) ?>" width="80" height="120">
-                            <div>
-                                <h3><?= htmlspecialchars($item['title']) ?></h3>
-                                <p>€ <?= number_format($item['price'], 2) ?> x <?= $item['quantity'] ?></p>
-                                <p><strong>Subtotaal: € <?= number_format($item['subtotal'], 2) ?></strong></p>
-                                <form method="post" style="display: inline;">
-                                    <input type="hidden" name="book_id" value="<?= $item['id'] ?>">
-                                    <button type="submit" name="action" value="remove" class="btn btn-danger">Verwijder</button>
+                <a href="login.php">Login</a>
+            <?php endif; ?>
+        </nav>
+    </div>
+</header>
+
+<main class="site-main">
+    <div class="container cart-page">
+        <div class="cart-header">
+            <h1>🛒 Winkelmandje</h1>
+            <span><?= count($items) ?> item(s)</span>
+        </div>
+
+        <?php if (!empty($error)): ?>
+            <div class="cart-message error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <?php if (!empty($success)): ?>
+            <div class="cart-message success"><?= htmlspecialchars($success) ?></div>
+        <?php endif; ?>
+
+        <?php if (empty($items)): ?>
+            <div class="cart-empty">
+                <h2>Je winkelmandje is leeg</h2>
+                <p>Ga terug naar de winkel en voeg boeken toe aan je mandje.</p>
+                <a href="index.php" class="btn btn-primary">⬅ Terug naar de winkel</a>
+            </div>
+        <?php else: ?>
+            <div class="cart-items">
+                <?php foreach ($items as $item): ?>
+                    <div class="cart-item">
+                        <img src="assets/images/<?= htmlspecialchars($item['cover_image'] ?? 'default-book.jpg') ?>"
+                             alt="<?= htmlspecialchars($item['title']) ?>">
+
+                        <div class="cart-item-info">
+                            <h3><?= htmlspecialchars($item['title']) ?></h3>
+                            <p>Prijs: € <?= number_format($item['price'], 2, ',', '.') ?></p>
+                            <p>Aantal: <?= (int)$item['quantity'] ?></p>
+                            <p><strong>Subtotaal: € <?= number_format($item['subtotal'], 2, ',', '.') ?></strong></p>
+
+                            <div class="cart-item-actions">
+                                <form method="post" style="display:inline;">
+                                    <input type="hidden" name="book_id" value="<?= (int)$item['id'] ?>">
+                                    <button type="submit" name="action" value="remove" class="btn btn-danger">
+                                        Verwijder
+                                    </button>
                                 </form>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
 
-                <div class="cart-total">
-                    <h2>Totaal: € <?= number_format($total, 2, ',', '.') ?></h2>
-                    
-                    <?php if (!$currentUser): ?>
-                        <p style="color: #dc2626;">💳 Log in om te bestellen</p>
-                        <a href="login.php" class="btn">Login</a>
-                    <?php else: ?>
-                        <form method="post" style="display: inline;">
-                            <input type="hidden" name="action" value="checkout">
-                            <button type="submit" class="btn btn-success">✅ Bestellen</button>
-                        </form>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-        </div>
-    </main>
+            <div class="cart-total">
+                <h2>Totaal: € <?= number_format($total, 2, ',', '.') ?></h2>
+                <p>Controleer je boeken en rond daarna je bestelling af.</p>
+
+                <?php if (!$currentUser): ?>
+                    <p class="cart-login-warning">Je moet ingelogd zijn om te bestellen.</p>
+                    <a href="login.php" class="btn btn-primary">Login</a>
+                <?php else: ?>
+                    <form method="post">
+                        <input type="hidden" name="action" value="checkout">
+                        <button type="submit" class="btn btn-success">✅ Bestellen</button>
+                    </form>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+</main>
 </body>
 </html>
