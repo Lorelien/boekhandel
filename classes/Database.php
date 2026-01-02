@@ -3,7 +3,7 @@
 class Database
 {
     private string $host = 'localhost';
-    private string $dbName = 'boekhandel';
+    private string $dbName = 'webshop';
     private string $user = 'root';
     private string $password = '';
     private ?PDO $connection = null;
