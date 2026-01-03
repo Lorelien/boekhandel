@@ -71,6 +71,7 @@ $total = $cart->getTotal();
             <a href="index.php">Home</a>
             <a href="winkelmandje.php">🛒 (<?= count($cart->getItems()) ?>)</a>
             <?php if ($currentUser): ?>
+                <a href="bestellingen.php">Bestellingen</a>
                 <span>👋 <?= htmlspecialchars($currentUser->getFirstname()) ?></span>
                 <?php if ($currentUser->isAdmin()): ?>
                     <a href="admin.php" style="color:#10b981;">Admin</a>
