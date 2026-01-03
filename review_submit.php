@@ -16,6 +16,7 @@ if (!$currentUser) {
 $bookId  = isset($_POST['book_id']) ? (int)$_POST['book_id'] : 0;
 $rating  = isset($_POST['rating']) ? (int)$_POST['rating'] : 0;
 $comment = trim($_POST['comment'] ?? '');
+$comment = strip_tags($comment);
 
 if ($bookId <= 0 || $rating < 1 || $rating > 5 || $comment === '') {
     header('Location: boek.php?id=' . $bookId);
