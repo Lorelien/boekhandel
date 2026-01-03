@@ -1,0 +1,174 @@
+<?php
+require_once __DIR__ . '/classes/Database.php';
+require_once __DIR__ . '/classes/Book.php';
+require_once __DIR__ . '/classes/Category.php';
+require_once __DIR__ . '/classes/User.php';
+require_once __DIR__ . '/classes/AuthService.php';
+require_once __DIR__ . '/classes/Review.php';
+
+$db   = new Database();
+$auth = new AuthService($db);
+$currentUser = $auth->getCurrentUser();
+
+$bookId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($bookId <= 0) {
+    header('Location: index.php');
+    exit;
+}
+
+$pdo = $db->getConnection();
+
+// Boek ophalen (een enkele rij)
+$stmt = $pdo->prepare("
+    SELECT b.*, 
+           CONCAT(COALESCE(a.firstname, ''), ' ', COALESCE(a.lastname, '')) AS author_name,
+           c.name AS category_name
+    FROM books b
+    LEFT JOIN authors a ON b.author_id = a.id
+    LEFT JOIN categories c ON b.category_id = c.id
+    WHERE b.id = :id
+");
+$stmt->execute([':id' => $bookId]);
+$bookRow = $stmt->fetch();
+
+if (!$bookRow) {
+    header('HTTP/1.0 404 Not Found');
+    echo 'Boek niet gevonden.';
+    exit;
+}
+
+// reviews ophalen
+$reviews = Review::findByBook($db, $bookId);
+
+// (nog zonder AJAX) basiscontrole of user boek heeft gekocht
+$hasPurchased = false;
+if ($currentUser) {
+    $stmtBought = $pdo->prepare("
+        SELECT COUNT(*) AS cnt
+        FROM orders o
+        JOIN order_items oi ON o.id = oi.order_id
+        WHERE o.user_id = :user_id AND oi.book_id = :book_id
+    ");
+    $stmtBought->execute([
+        ':user_id' => $currentUser->getId(),
+        ':book_id' => $bookId
+    ]);
+    $hasPurchased = ((int)$stmtBought->fetchColumn() > 0);
+}
+?>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title><?= htmlspecialchars($bookRow['title']) ?> - Boekhandel</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="site-header">
+    <div class="container">
+        <h1 class="logo">📚 Boekhandel</h1>
+        <nav class="main-nav">
+            <a href="index.php">Home</a>
+            <a href="winkelmandje.php">🛒</a>
+            <?php if ($currentUser): ?>
+                <a href="bestellingen.php">Bestellingen</a>
+                <?php if ($currentUser->isAdmin()): ?>
+                    <a href="admin.php" style="color:#10b981;">Admin</a>
+                <?php endif; ?>
+                <span>👋 <?= htmlspecialchars($currentUser->getFirstname()) ?></span>
+            <?php else: ?>
+                <a href="login.php">Login</a>
+            <?php endif; ?>
+        </nav>
+    </div>
+</header>
+
+<main class="site-main">
+    <div class="container book-page">
+        <!-- Linkerkolom: cover -->
+        <div>
+            <img src="assets/images/<?= htmlspecialchars($bookRow['cover_image'] ?? 'default-book.jpg') ?>"
+                 alt="<?= htmlspecialchars($bookRow['title']) ?>"
+                 class="book-cover-large">
+
+            <div class="book-actions">
+                <form method="post" action="winkelmandje.php">
+                    <input type="hidden" name="book_id" value="<?= (int)$bookRow['id'] ?>">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" name="action" value="add" class="btn btn-secondary">
+                        🛒 Voeg toe aan mandje
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Rechterkolom: info + reviews -->
+        <div>
+            <div class="book-meta">
+                <h1><?= htmlspecialchars($bookRow['title']) ?></h1>
+                <p><strong>Auteur:</strong> <?= htmlspecialchars($bookRow['author_name'] ?: 'Onbekend') ?></p>
+                <p><strong>Categorie:</strong> <?= htmlspecialchars($bookRow['category_name'] ?? '') ?></p>
+                <p><strong>Prijs:</strong> € <?= number_format($bookRow['price'], 2, ',', '.') ?></p>
+                <p><strong>Taal:</strong> <?= htmlspecialchars($bookRow['language']) ?></p>
+                <p><strong>Jaar:</strong> <?= htmlspecialchars($bookRow['publication_year']) ?></p>
+                <p><strong>ISBN:</strong> <?= htmlspecialchars($bookRow['isbn']) ?></p>
+            </div>
+
+            <div class="book-description">
+                <h2>Beschrijving</h2>
+                <p><?= nl2br(htmlspecialchars($bookRow['description'])) ?></p>
+            </div>
+
+            <div class="reviews-section">
+                <h2>Reviews</h2>
+
+                <?php if (empty($reviews)): ?>
+                    <p>Er zijn nog geen reviews voor dit boek.</p>
+                <?php else: ?>
+                    <?php foreach ($reviews as $review): ?>
+                        <div class="review-card">
+                            <div class="review-header">
+                                <span><?= htmlspecialchars($review['firstname'] . ' ' . $review['lastname']) ?></span>
+                                <span>⭐ <?= (int)$review['rating'] ?>/5 · <?= htmlspecialchars($review['review_date']) ?></span>
+                            </div>
+                            <div class="review-comment">
+                                <?= nl2br(htmlspecialchars($review['comment'])) ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
+                <!-- Review formulier (nog zonder AJAX) -->
+                <?php if (!$currentUser): ?>
+                    <p style="margin-top:1rem;">Log in om een review te schrijven.</p>
+                <?php elseif (!$hasPurchased): ?>
+                    <p style="margin-top:1rem; color:#9f1239;">
+                        Je kunt alleen een review plaatsen als je dit boek hebt gekocht.
+                    </p>
+                <?php else: ?>
+                    <div class="review-form" style="margin-top:1rem;">
+                        <h3>Schrijf een review</h3>
+                        <form method="post" action="review_submit.php">
+                            <input type="hidden" name="book_id" value="<?= (int)$bookRow['id'] ?>">
+                            <label for="rating">Rating</label>
+                            <select name="rating" id="rating" required>
+                                <option value="5">5 - Uitstekend</option>
+                                <option value="4">4 - Goed</option>
+                                <option value="3">3 - Oké</option>
+                                <option value="2">2 - Matig</option>
+                                <option value="1">1 - Slecht</option>
+                            </select>
+                            <br><br>
+                            <label for="comment">Commentaar</label>
+                            <textarea name="comment" id="comment" required></textarea>
+                            <br>
+                            <button type="submit" class="btn btn-primary">Review plaatsen</button>
+                        </form>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
