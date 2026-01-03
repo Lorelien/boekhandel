@@ -18,7 +18,7 @@ if ($bookId <= 0) {
 
 $pdo = $db->getConnection();
 
-// Boek ophalen (een enkele rij)
+// Boek ophalen
 $stmt = $pdo->prepare("
     SELECT b.*, 
            CONCAT(COALESCE(a.firstname, ''), ' ', COALESCE(a.lastname, '')) AS author_name,
@@ -37,10 +37,10 @@ if (!$bookRow) {
     exit;
 }
 
-// reviews ophalen
+// Reviews ophalen
 $reviews = Review::findByBook($db, $bookId);
 
-// (nog zonder AJAX) basiscontrole of user boek heeft gekocht
+// Heeft de ingelogde gebruiker dit boek gekocht?
 $hasPurchased = false;
 if ($currentUser) {
     $stmtBought = $pdo->prepare("
@@ -85,7 +85,7 @@ if ($currentUser) {
 
 <main class="site-main">
     <div class="container book-page">
-        <!-- Linkerkolom: cover -->
+        <!-- Linkerkolom: cover + actie -->
         <div>
             <img src="assets/images/<?= htmlspecialchars($bookRow['cover_image'] ?? 'default-book.jpg') ?>"
                  alt="<?= htmlspecialchars($bookRow['title']) ?>"
@@ -119,26 +119,28 @@ if ($currentUser) {
                 <p><?= nl2br(htmlspecialchars($bookRow['description'])) ?></p>
             </div>
 
-            <div class="reviews-section">
+            <div class="reviews-section" id="reviews">
                 <h2>Reviews</h2>
 
                 <?php if (empty($reviews)): ?>
-                    <p>Er zijn nog geen reviews voor dit boek.</p>
+                    <p id="no-reviews-text">Er zijn nog geen reviews voor dit boek.</p>
                 <?php else: ?>
-                    <?php foreach ($reviews as $review): ?>
-                        <div class="review-card">
-                            <div class="review-header">
-                                <span><?= htmlspecialchars($review['firstname'] . ' ' . $review['lastname']) ?></span>
-                                <span>⭐ <?= (int)$review['rating'] ?>/5 · <?= htmlspecialchars($review['review_date']) ?></span>
+                    <div id="reviews-list">
+                        <?php foreach ($reviews as $review): ?>
+                            <div class="review-card">
+                                <div class="review-header">
+                                    <span><?= htmlspecialchars($review['firstname'] . ' ' . $review['lastname']) ?></span>
+                                    <span>⭐ <?= (int)$review['rating'] ?>/5 · <?= htmlspecialchars($review['review_date']) ?></span>
+                                </div>
+                                <div class="review-comment">
+                                    <?= nl2br(htmlspecialchars($review['comment'])) ?>
+                                </div>
                             </div>
-                            <div class="review-comment">
-                                <?= nl2br(htmlspecialchars($review['comment'])) ?>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    </div>
                 <?php endif; ?>
 
-                <!-- Review formulier (nog zonder AJAX) -->
+                <!-- Review formulier / voorwaarden -->
                 <?php if (!$currentUser): ?>
                     <p style="margin-top:1rem;">Log in om een review te schrijven.</p>
                 <?php elseif (!$hasPurchased): ?>
@@ -148,8 +150,11 @@ if ($currentUser) {
                 <?php else: ?>
                     <div class="review-form" style="margin-top:1rem;">
                         <h3>Schrijf een review</h3>
-                        <form method="post" action="review_submit.php">
+                        <div id="review-error" style="color:#b91c1c; margin-bottom:0.5rem; display:none;"></div>
+
+                        <form method="post" action="review_submit.php" id="review-form">
                             <input type="hidden" name="book_id" value="<?= (int)$bookRow['id'] ?>">
+
                             <label for="rating">Rating</label>
                             <select name="rating" id="rating" required>
                                 <option value="5">5 - Uitstekend</option>
@@ -159,9 +164,11 @@ if ($currentUser) {
                                 <option value="1">1 - Slecht</option>
                             </select>
                             <br><br>
+
                             <label for="comment">Commentaar</label>
                             <textarea name="comment" id="comment" required></textarea>
                             <br>
+
                             <button type="submit" class="btn btn-primary">Review plaatsen</button>
                         </form>
                     </div>
@@ -170,5 +177,90 @@ if ($currentUser) {
         </div>
     </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('review-form');
+    if (!form) return;
+
+    const errorBox   = document.getElementById('review-error');
+    const reviewsDiv = document.getElementById('reviews-list');
+    const noReviews  = document.getElementById('no-reviews-text');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault(); // normale submit tegenhouden (AJAX)
+
+        if (errorBox) {
+            errorBox.style.display = 'none';
+            errorBox.textContent = '';
+        }
+
+        const formData = new FormData(form);
+
+        fetch('api_review.php', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                if (errorBox) {
+                    errorBox.textContent = data.error || 'Er ging iets mis bij het opslaan van je review.';
+                    errorBox.style.display = 'block';
+                }
+                return;
+            }
+
+            if (noReviews) {
+                noReviews.style.display = 'none';
+            }
+
+            let list = reviewsDiv;
+            if (!list) {
+                list = document.createElement('div');
+                list.id = 'reviews-list';
+                const section = document.getElementById('reviews');
+                if (section) {
+                    section.appendChild(list);
+                }
+            }
+
+            const card = document.createElement('div');
+            card.className = 'review-card';
+
+            const header = document.createElement('div');
+            header.className = 'review-header';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = data.userName || 'Onbekende gebruiker';
+
+            const metaSpan = document.createElement('span');
+            metaSpan.textContent = '⭐ ' + data.rating + '/5 · ' + (data.date || '');
+
+            header.appendChild(nameSpan);
+            header.appendChild(metaSpan);
+
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'review-comment';
+            commentDiv.textContent = data.comment;
+
+            card.appendChild(header);
+            card.appendChild(commentDiv);
+
+            // Nieuwste review bovenaan
+            list.prepend(card);
+
+            form.reset();
+        })
+        .catch(err => {
+            console.error(err);
+            if (errorBox) {
+                errorBox.textContent = 'Er ging iets mis bij het versturen. Probeer later opnieuw.';
+                errorBox.style.display = 'block';
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>
