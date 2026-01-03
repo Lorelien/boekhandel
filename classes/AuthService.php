@@ -70,4 +70,28 @@ class AuthService
 
         return User::findById($this->db, (int)$_SESSION['user_id']);
     }
+
+    public function verifyPassword(User $user, string $plainPassword): bool
+{
+    return password_verify($plainPassword, $user->getPasswordHash());
+}
+
+public function changePassword(User $user, string $newPlainPassword): bool
+{
+    $hash = password_hash($newPlainPassword, PASSWORD_DEFAULT);
+
+    $pdo = $this->db->getConnection();
+    $stmt = $pdo->prepare("UPDATE users SET password = :password WHERE id = :id");
+    $ok = $stmt->execute([
+        ':password' => $hash,
+        ':id'       => $user->getId()
+    ]);
+
+    if ($ok) {
+        $user->setPasswordHash($hash); // als je zo'n setter hebt
+    }
+
+    return $ok;
+}
+
 }
