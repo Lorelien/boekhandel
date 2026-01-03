@@ -61,32 +61,6 @@ a {
     padding: 2rem 0;
 }
 
-/* Sidebar */
-
-.sidebar h2 {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-}
-
-.sidebar + h2 {
-    margin-top: 1.5rem;
-}
-
-.category-list {
-    list-style: none;
-    margin-bottom: 1.5rem;
-}
-
-.category-list li a {
-    display: block;
-    padding: 0.35rem 0;
-    color: #111827;
-}
-
-.category-list li a:hover {
-    color: #2563eb;
-}
-
 .search-form {
     display: flex;
     flex-direction: column;
@@ -346,4 +320,56 @@ a {
     .order-item__meta {
         flex-wrap: wrap;
     }
+}
+
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0 1.5rem;
+}
+
+.search-form input[type="text"],
+.search-form select {
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+}
+
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.book-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+}
+
+.book-card__cover {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.book-card__title {
+    font-size: 1rem;
+    margin: 0 0 0.25rem;
+}
+
+.book-card__author,
+.book-card__category,
+.book-card__price {
+    font-size: 0.85rem;
+    margin: 0 0 0.2rem;
+}
+
+.book-card__cart-form {
+    margin-top: 0.5rem;
 }
