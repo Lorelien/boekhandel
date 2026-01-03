@@ -88,7 +88,7 @@ public function changePassword(User $user, string $newPlainPassword): bool
     ]);
 
     if ($ok) {
-        $user->setPasswordHash($hash); // als je zo'n setter hebt
+        $user->setPasswordHash($hash); 
     }
 
     return $ok;

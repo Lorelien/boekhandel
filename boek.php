@@ -72,6 +72,7 @@ if ($currentUser) {
             <a href="winkelmandje.php">🛒</a>
             <?php if ($currentUser): ?>
                 <a href="bestellingen.php">Bestellingen</a>
+                <a href="password_change.php">Wachtwoord</a>
                 <?php if ($currentUser->isAdmin()): ?>
                     <a href="admin.php" style="color:#10b981;">Admin</a>
                 <?php endif; ?>

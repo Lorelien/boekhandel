@@ -74,6 +74,7 @@ if (!empty($orders)) {
             <a href="index.php">Home</a>
             <a href="winkelmandje.php">Winkelmandje</a>
             <a href="bestellingen.php">Bestellingen</a>
+            <a href="password_change.php">Wachtwoord</a>
             <span>👋 <?= htmlspecialchars($currentUser->getFirstname()) ?></span>
         </nav>
     </div>

@@ -91,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1 class="logo">Admin Boekhandel</h1>
         <nav class="main-nav">
             <a href="index.php">← Terug naar winkel</a>
+            <a href="password_change.php">Wachtwoord</a>
             <span>👑 <?= htmlspecialchars($currentUser->getFullName()) ?></span>
         </nav>
     </div>

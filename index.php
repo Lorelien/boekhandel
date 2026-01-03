@@ -34,6 +34,7 @@ $books      = Book::findAll($db, $categoryId, $search);
             <a href="winkelmandje.php">🛒 (<?= count($cart->getItems()) ?>)</a>
             <?php if ($currentUser): ?>
                 <a href="bestellingen.php">Bestellingen</a>
+                <a href="password_change.php">Wachtwoord</a>
                 <span>👋 <?= htmlspecialchars($currentUser->getFirstname()) ?></span>
                 <?php if ($currentUser->isAdmin()): ?>
                     <a href="admin.php" style="color:#10b981;">Admin</a>
