@@ -120,6 +120,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <td>€ <?= number_format($row['price'], 2, ',', '.') ?></td>
                         <td><?= htmlspecialchars($row['isbn']) ?></td>
                         <td>
+                            <a href="admin_edit_book.php?id=<?= (int)$row['id'] ?>" class="btn-secondary">
+                                Bewerken
+                            </a>
                             <form method="post" style="display:inline;"
                                   onsubmit="return confirm('Boek verwijderen?');">
                                 <input type="hidden" name="action" value="delete">
