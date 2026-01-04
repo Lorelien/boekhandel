@@ -2,10 +2,12 @@
 require_once __DIR__ . '/classes/Database.php';
 require_once __DIR__ . '/classes/User.php';
 require_once __DIR__ . '/classes/AuthService.php';
+require_once __DIR__ . '/classes/Cart.php';
 
 $db   = new Database();
 $auth = new AuthService($db);
 $currentUser = $auth->getCurrentUser();
+$cart = new Cart($db);
 
 $pdo = $db->getConnection();
 
@@ -213,7 +215,7 @@ $books = $stmt->fetchAll();
         <h1 class="logo">📚 Boekhandel</h1>
         <nav class="main-nav">
             <a href="index.php">Home</a>
-            <a href="winkelmandje.php">🛒</a>
+            <a href="winkelmandje.php">🛒 (<?= count($cart->getItems()) ?>)</a>
             <?php if ($currentUser): ?>
                 <a href="bestellingen.php">Bestellingen</a>
                 <a href="password_change.php">Wachtwoord</a>
