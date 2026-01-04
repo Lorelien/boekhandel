@@ -7,6 +7,13 @@ $db = new Database();
 $auth = new AuthService($db);
 
 $error = '';
+$info  = '';
+
+// bericht tonen als je via logout.php bent teruggestuurd
+if (isset($_GET['logged_out'])) {
+    $info = 'Je bent succesvol uitgelogd.';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         if ($_POST['action'] === 'login') {
@@ -56,6 +63,9 @@ $currentUser = $auth->getCurrentUser();
             </div>
         <?php else: ?>
             <!-- Login formulier -->
+             <?php if ($info): ?>
+                <div class="info"><?= htmlspecialchars($info) ?></div>
+            <?php endif; ?>
             <?php if ($error): ?>
                 <div class="error"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
