@@ -10,6 +10,7 @@ class User
     private string $passwordHash;
     private string $role;
     private string $createdAt;
+    private float $wallet;
 
     // -------- Getters --------
     public function getId(): int
@@ -50,6 +51,11 @@ class User
     public function getCreatedAt(): string
     {
         return $this->createdAt;
+    }
+
+     public function getWallet(): float
+    {
+        return $this->wallet;
     }
 
     // -------- Setters --------
@@ -93,6 +99,11 @@ class User
         $this->createdAt = $createdAt;
     }
 
+        public function setWallet(float $wallet): void
+    {
+        $this->wallet = $wallet;
+    }
+
     // -------- Handige helper methods --------
     public function getFullName(): string
     {
@@ -134,7 +145,7 @@ class User
     }
 
     // -------- Interne helper om DB-row naar User te maken --------
-    private static function fromRow(array $row): User
+        private static function fromRow(array $row): User
     {
         $user = new User();
         $user->setId((int)$row['id']);
@@ -145,6 +156,7 @@ class User
         $user->setPasswordHash($row['password_hash']);
         $user->setRole($row['role'] ?? 'user');
         $user->setCreatedAt($row['created_at']);
+        $user->setWallet(isset($row['wallet']) ? (float)$row['wallet'] : 0.0);
 
         return $user;
     }
