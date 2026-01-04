@@ -336,5 +336,6 @@ $books = $stmt->fetchAll();
         </section>
     </div>
 </main>
+<?php include __DIR__ . '/footer.inc.php'; ?>
 </body>
 </html>
