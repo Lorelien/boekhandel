@@ -34,11 +34,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'checkout') {
-        if (!$currentUser) {
-            $error = 'Je moet ingelogd zijn om te bestellen.';
+    if (!$currentUser) {
+        $error = 'Je moet ingelogd zijn om te bestellen.';
+    } else {
+        $total = $cart->getTotal(); // totaal van mandje
+
+        // 1. Check wallet
+        if ($currentUser->getWallet() < $total) {
+            $error = 'Je hebt niet genoeg credits in je wallet om deze bestelling te plaatsen.';
         } else {
+            // 2. Order aanmaken
             $order = Order::createFromCart($db, $currentUser, $cart);
             if ($order) {
+                // 3. Wallet updaten (credits aftrekken)
+                $newBalance = $currentUser->getWallet() - $total;
+
+                $pdo = $db->getConnection();
+                $stmt = $pdo->prepare("UPDATE users SET wallet = :wallet WHERE id = :id");
+                $stmt->execute([
+                    ':wallet' => $newBalance,
+                    ':id'     => $currentUser->getId(),
+                ]);
+
+                $currentUser->setWallet($newBalance);
+
                 $success = 'Bestelling geplaatst! Order #' . $order->getId();
             } else {
                 $error = 'Er is iets misgegaan bij het plaatsen van je bestelling.';
@@ -46,9 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Na POST altijd redirect om refresh‑problemen te vermijden (PRG‑pattern)
     header('Location: winkelmandje.php');
     exit;
+}
 }
 
 // Data voor weergave
@@ -64,26 +83,7 @@ $total = $cart->getTotal();
     <link rel="stylesheet" href="assets/css/cart.css">
 </head>
 <body>
-<header class="site-header">
-    <div class="container">
-        <h1 class="logo">📚 Boekhandel</h1>
-        <nav class="main-nav">
-            <a href="index.php">Home</a>
-            <a href="winkelmandje.php">🛒 (<?= count($cart->getItems()) ?>)</a>
-            <?php if ($currentUser): ?>
-                <a href="bestellingen.php">Bestellingen</a>
-                <a href="password_change.php">Wachtwoord</a>
-                <span>👋 <?= htmlspecialchars($currentUser->getFirstname()) ?></span>
-                <?php if ($currentUser->isAdmin()): ?>
-                    <a href="admin.php" style="color:#10b981;">Admin</a>
-                <?php endif; ?>
-                <a href="login.php">Account</a>
-            <?php else: ?>
-                <a href="login.php">Login</a>
-            <?php endif; ?>
-        </nav>
-    </div>
-</header>
+<?php include __DIR__ . '/nav.inc.php'; ?>
 
 <main class="site-main">
     <div class="container cart-page">

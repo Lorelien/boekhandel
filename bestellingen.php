@@ -62,21 +62,7 @@ foreach ($rows as $row) {
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-<header class="site-header">
-    <div class="container">
-        <h1 class="logo">📚 Boekhandel</h1>
-        <nav class="main-nav">
-            <a href="index.php">Home</a>
-            <a href="winkelmandje.php">🛒</a>
-            <a href="bestellingen.php">Bestellingen</a>
-            <a href="password_change.php">Wachtwoord</a>
-            <?php if ($currentUser->isAdmin()): ?>
-                <a href="admin.php" style="color:#10b981;">Admin</a>
-            <?php endif; ?>
-            <span>👋 <?= htmlspecialchars($currentUser->getFirstname()) ?></span>
-        </nav>
-    </div>
-</header>
+<?php include __DIR__ . '/nav.inc.php'; ?>
 
 <main class="site-main">
     <div class="container">
