@@ -20,6 +20,21 @@ $books = $stmt->fetchAll();
 // 2. Categorieën ophalen voor dropdown
 $categories = Category::findAll($db);
 
+// 2b. Authors en publishers ophalen voor dropdowns
+$authorStmt = $pdo->query("
+    SELECT id, firstname, lastname 
+    FROM authors 
+    ORDER BY lastname ASC, firstname ASC
+");
+$authors = $authorStmt->fetchAll();
+
+$publisherStmt = $pdo->query("
+    SELECT id, name 
+    FROM publishers 
+    ORDER BY name ASC
+");
+$publishers = $publisherStmt->fetchAll();
+
 // 3. Boek toevoegen / verwijderen
 $error = '';
 $success = '';
@@ -33,9 +48,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $authorId    = (int)($_POST['author_id'] ?? 0);
         $publisherId = (int)($_POST['publisher_id'] ?? 0);
 
+        $newAuthorFirstname = trim($_POST['new_author_firstname'] ?? '');
+        $newAuthorLastname  = trim($_POST['new_author_lastname'] ?? '');
+
         if ($title === '' || $price <= 0 || $categoryId <= 0) {
             $error = 'Titel, prijs (>0) en categorie zijn verplicht.';
         } else {
+
+            if ($newAuthorFirstname !== '' && $newAuthorLastname !== '') {
+            $stmtAuthor = $pdo->prepare("
+                INSERT INTO authors (firstname, lastname)
+                VALUES (:firstname, :lastname)
+            ");
+            $stmtAuthor->execute([
+                ':firstname' => $newAuthorFirstname,
+                ':lastname'  => $newAuthorLastname,
+            ]);
+
+            $authorId = (int)$pdo->lastInsertId();
+            }
             $stmtCreate = $pdo->prepare("
                 INSERT INTO books (category_id, author_id, publisher_id, title, isbn, description, price, language, publication_year, cover_image)
                 VALUES (:category_id, :author_id, :publisher_id, :title, :isbn, :description, :price, :language, :year, :cover_image)
@@ -184,12 +215,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text" id="cover_image" name="cover_image" value="default-book.jpg">
                     </div>
                     <div>
-                        <label for="author_id">Auteur ID (optioneel)</label>
-                        <input type="number" id="author_id" name="author_id" min="0">
+                        <label for="author_id">Auteur (optioneel)</label>
+                        <select id="author_id" name="author_id">
+                            <option value="0">-- Kies auteur --</option>
+                            <?php foreach ($authors as $author): ?>
+                                <option value="<?= (int)$author['id'] ?>">
+                                    <?= htmlspecialchars($author['lastname'] . ' ' . $author['firstname']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="new_author_firstname">Nieuwe auteur voornaam (optioneel)</label>
+                        <input type="text" id="new_author_firstname" name="new_author_firstname">
                     </div>
                     <div>
-                        <label for="publisher_id">Uitgever ID (optioneel)</label>
-                        <input type="number" id="publisher_id" name="publisher_id" min="0">
+                        <label for="new_author_lastname">Nieuwe auteur achternaam (optioneel)</label>
+                        <input type="text" id="new_author_lastname" name="new_author_lastname">
+                    </div>
+
+                    <div>
+                        <label for="publisher_id">Uitgever (optioneel)</label>
+                        <select id="publisher_id" name="publisher_id">
+                            <option value="0">-- Kies uitgever --</option>
+                            <?php foreach ($publishers as $pub): ?>
+                                <option value="<?= (int)$pub['id'] ?>">
+                                    <?= htmlspecialchars($pub['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
 
                     <div>
