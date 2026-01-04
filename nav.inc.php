@@ -25,7 +25,8 @@ $cartCount = ($cart && method_exists($cart, 'getItems')) ? count($cart->getItems
                     <a href="admin.php" style="color:#10b981;">Admin</a>
                 <?php endif; ?>
 
-                <span>👋 <?= htmlspecialchars($currentUser->getFirstname()) ?></span>
+            <span>👋 <?= htmlspecialchars($currentUser->getFirstname()) ?></span>
+                <a href="logout.php">Logout</a>
             <?php else: ?>
                 <a href="login.php">Login</a>
             <?php endif; ?>
