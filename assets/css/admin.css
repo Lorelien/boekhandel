@@ -23,26 +23,21 @@ table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
-    /* table-layout: fixed;  ← weghalen of uitcommenten */
 }
 
 th, td {
     padding: 0.5rem;
     border-bottom: 1px solid #e5e7eb;
     text-align: left;
-    /* deze twee mogen blijven om te lange waarden te beperken als nodig */
     overflow: hidden;
     text-overflow: ellipsis;
-    /* white-space: nowrap;  ← weghalen zodat tekst kan aflopen */
 }
 
-/* Alleen ID smal maken, rest automatisch laten verdelen */
 th:nth-child(1),
 td:nth-child(1) {
     width: 40px;
 }
 
-/* Optioneel: categorie iets smaller, prijs wat smaller */
 th:nth-child(3),
 td:nth-child(3) {
     width: 25%;
@@ -140,7 +135,7 @@ td:nth-child(4) {
     }
 }
 
-/* Admin actie-knoppen */
+/* Algemene button-stijl voor admin */
 .btn-primary,
 .btn-secondary,
 .btn-danger {
@@ -154,17 +149,19 @@ td:nth-child(4) {
     transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Bewerken */
-.btn-secondary {
-    background-color: #e5e7eb;
-    color: #111827;
+/* Bewerken-knop (link) */
+a.btn-secondary {
+    background-color: #02620b;
+    color: #f3f4f6;
+    border: 1px solid #d1d5db;
 }
 
-.btn-secondary:hover {
-    background-color: #d1d5db;
+a.btn-secondary:hover {
+    background-color: #03760e; 
+    color: #f3f4f6;
 }
 
-/* Verwijderen */
+/* Verwijder-knop */
 .btn-danger {
     background-color: #dc2626;
     color: #ffffff;
@@ -175,7 +172,7 @@ td:nth-child(4) {
     box-shadow: 0 1px 3px rgba(220, 38, 38, 0.4);
 }
 
-/* Algemeen primary (bv. opslaan-knop) */
+/* Primary-knop (opslaan) */
 .btn-primary {
     background-color: #2563eb;
     color: #ffffff;
