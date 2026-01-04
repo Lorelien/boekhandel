@@ -139,3 +139,49 @@ td:nth-child(4) {
         grid-template-columns: 1fr;
     }
 }
+
+/* Admin actie-knoppen */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+    display: inline-block;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Bewerken */
+.btn-secondary {
+    background-color: #e5e7eb;
+    color: #111827;
+}
+
+.btn-secondary:hover {
+    background-color: #d1d5db;
+}
+
+/* Verwijderen */
+.btn-danger {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background-color: #b91c1c;
+    box-shadow: 0 1px 3px rgba(220, 38, 38, 0.4);
+}
+
+/* Algemeen primary (bv. opslaan-knop) */
+.btn-primary {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.4);
+}
