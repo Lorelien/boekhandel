@@ -17,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($firstname) || empty($lastname) || empty($email) || empty($password)) {
         $error = 'Alle velden zijn verplicht';
-    } elseif (strlen($password) < 6) {
-        $error = 'Wachtwoord moet minstens 6 tekens zijn';
+    } elseif (strlen($password) < 4) {
+        $error = 'Wachtwoord moet minstens 4 tekens zijn';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Geen geldig emailadres';
     } elseif ($auth->register($firstname, $lastname, $email, $password)) {
