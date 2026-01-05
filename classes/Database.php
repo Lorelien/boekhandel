@@ -2,10 +2,10 @@
 
 class Database
 {
-    private string $host = 'localhost';
-    private string $dbName = 'webshop';
-    private string $user = 'root';
-    private string $password = '';
+    private string $host = 'sql103.infinityfree.com';
+    private string $dbName = 'if0_40831482_Boekhandel';
+    private string $user = 'if0_40831482';
+    private string $password = 'z1qY37IhdyM6yic';
     private ?PDO $connection = null;
 
     public function getConnection(): PDO
