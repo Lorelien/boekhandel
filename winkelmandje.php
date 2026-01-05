@@ -58,7 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $currentUser->setWallet($newBalance);
 
-                $success = 'Bestelling geplaatst! Order #' . $order->getId();
+                $success = 'Bestelling geplaatst! Order #' . $order->getId()
+    . ' | Er is ' . number_format($total, 2, ',', '.') . ' coins van je wallet gegaan.'
+    . ' Je nieuwe saldo is ' . number_format($newBalance, 2, ',', '.') . ' coins.';
             } else {
                 $error = 'Er is iets misgegaan bij het plaatsen van je bestelling.';
             }
@@ -140,6 +142,7 @@ $total = $cart->getTotal();
                     <p class="cart-login-warning">Je moet ingelogd zijn om te bestellen.</p>
                     <a href="login.php" class="btn btn-primary">Login</a>
                 <?php else: ?>
+                    <p>Je huidige saldo: <?= number_format($currentUser->getWallet(), 2, ',', '.') ?> coins</p>
                     <form method="post">
                         <input type="hidden" name="action" value="checkout">
                         <button type="submit" class="btn btn-success">✅ Bestellen</button>

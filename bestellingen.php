@@ -67,6 +67,9 @@ foreach ($rows as $row) {
 <main class="site-main">
     <div class="container">
         <h2>Mijn bestellingen</h2>
+<p>Je huidige saldo:
+    <?= number_format($currentUser->getWallet(), 2, ',', '.') ?> coins
+</p>
 
         <?php if (empty($orders)): ?>
             <p>Je hebt nog geen bestellingen geplaatst.</p>
