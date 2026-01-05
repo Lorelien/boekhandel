@@ -373,3 +373,11 @@ a {
 .book-card__cart-form {
     margin-top: 0.5rem;
 }
+
+/* Bestellingen-pagina: container niet als grid */
+body.bestellingen-page .site-main .container {
+    display: block;          
+    max-width: 1200px;      
+    margin: 0 auto;
+    padding: 2rem 1rem;      
+}

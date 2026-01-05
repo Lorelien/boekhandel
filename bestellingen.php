@@ -61,7 +61,7 @@ foreach ($rows as $row) {
     <title>Mijn bestellingen - Boekhandel</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body class="bestellingen-page">
 <?php include __DIR__ . '/nav.inc.php'; ?>
 
 <main class="site-main">
