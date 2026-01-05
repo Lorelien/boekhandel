@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Wachtwoord * (min. 6 tekens)</label>
+                    <label for="password">Wachtwoord * (min. 4 tekens)</label>
                     <input type="password" id="password" name="password" required minlength="6">
                 </div>
 
