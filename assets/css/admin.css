@@ -182,3 +182,10 @@ a.btn-secondary:hover {
     background-color: #1d4ed8;
     box-shadow: 0 1px 3px rgba(37, 99, 235, 0.4);
 }
+
+body.admin-edit-book-page .site-main .container {
+    display: block;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}

@@ -86,11 +86,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/admin.css">
 </head>
-<body>
+<body class="admin-edit-book-page">
 <?php include __DIR__ . '/nav.inc.php'; ?>
 
 <main class="site-main">
-    <div class="container admin-layout">
+    <div class="container">
         <section class="admin-card">
             <h2>✏ Boek bewerken #<?= (int)$book['id'] ?></h2>
 
